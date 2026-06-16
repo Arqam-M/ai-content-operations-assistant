@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Content Operations Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f4f7fc;
+            font-size:14px;
+        }
+
+        .card-box{
+            background:white;
+            padding:20px;
+            border-radius:15px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .stats-card{
+            background:white;
+            padding:20px;
+            text-align:center;
+            border-radius:15px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .stats-card h2{
+            margin:0;
+            font-weight:700;
+            color:#0d6efd;
+        }
+
+        .stats-card p{
+            margin:0;
+            color:gray;
+        }
+
+        .table-responsive{
+            overflow-x:auto;
+            white-space:nowrap;
+        }
+
+        table{
+            min-width:1600px;
+        }
+
+        th{
+            position:sticky;
+            top:0;
+            z-index:1;
+            white-space:nowrap;
+        }
+
+        td{
+            vertical-align:top;
+            max-width:260px;
+            white-space:normal;
+            word-wrap:break-word;
+        }
+
+        /* ✅ SCROLL BOX (ONLY FOR TEAMS & TASKS) */
+        .scroll-box{
+            max-height:140px;
+            overflow-y:auto;
+            padding-right:5px;
+        }
+
+        .summary-box{
+            max-width:300px;
+            white-space:normal;
+        }
+
+        .badge-custom{
+            display:block;
+            margin-bottom:5px;
+            padding:6px 10px;
+            border-radius:8px;
+            font-size:12px;
+        }
+
+        .team-badge{
+            background:#0d6efd;
+            color:white;
+        }
+
+        .task-badge{
+            background:#198754;
+            color:white;
+        }
+
+        .format-badge{
+            background:#ffc107;
+            color:black;
+            display:block;
+            margin-bottom:5px;
+            padding:6px 10px;
+            border-radius:8px;
+        }
+
+        .dashboard-title{
+            font-weight:700;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container-fluid mt-4">
+
+    <!-- STATS -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h2>{{ requests|length }}</h2>
+                <p>Total Requests</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="card-box mb-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h2 class="dashboard-title">📊 AI Content Operations Dashboard</h2>
+
+            <a href="/" class="btn btn-success">+ Add New Request</a>
+
+        </div>
+
+        <form method="GET" class="row g-3">
+
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search Client / Brand / Title">
+            </div>
+
+            <div class="col-md-2">
+                <select name="platform" class="form-select">
+                    <option value="">Platform</option>
+                    <option>Instagram</option>
+                    <option>Facebook</option>
+                    <option>LinkedIn</option>
+                    <option>YouTube</option>
+                    <option>Website</option>
+                    <option>Email Marketing</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="priority" class="form-select">
+                    <option value="">Priority</option>
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                    <option>Urgent</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="sort" class="form-select">
+                    <option value="">Newest First</option>
+                    <option value="created_at">Submission Date</option>
+                    <option value="deadline">Deadline</option>
+                    <option value="priority">Priority</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Search</button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="card-box">
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Client</th>
+                        <th>Brand</th>
+                        <th>Title</th>
+                        <th>Platform</th>
+                        <th>Priority</th>
+                        <th>Deadline</th>
+                        <th>Submission Date</th>
+                        <th>Campaign Type</th>
+                        <th>Audience</th>
+                        <th>Formats</th>
+                        <th>Summary</th>
+                        <th>Teams</th>
+                        <th>Tasks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for request in requests %}
+                <tr>
+
+                    <td><strong>{{ request.client }}</strong></td>
+                    <td>{{ request.brand }}</td>
+                    <td>{{ request.title }}</td>
+                    <td>{{ request.platform }}</td>
+
+                    <td>
+                        {% if request.priority == "Urgent" %}
+                            <span class="badge bg-danger">{{ request.priority }}</span>
+                        {% elif request.priority == "High" %}
+                            <span class="badge bg-warning text-dark">{{ request.priority }}</span>
+                        {% elif request.priority == "Medium" %}
+                            <span class="badge bg-primary">{{ request.priority }}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{ request.priority }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ request.deadline.split('-')[2] }}-{{ request.deadline.split('-')[1] }}-{{ request.deadline.split('-')[0] }}
+                    </td>
+
+                    <td>{{ request.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+
+                    <td>
+                        <span class="badge bg-secondary">{{ request.campaign_type }}</span>
+                    </td>
+
+                    <td>{{ request.audience }}</td>
+
+                    <!-- FORMATS -->
+                    <td>
+                        {% for format in request.formats.split(',') %}
+                        <span class="format-badge">{{ format.strip() }}</span>
+                        {% endfor %}
+                    </td>
+
+                    <!-- SUMMARY -->
+                    <td class="summary-box">
+                        {{ request.summary }}
+                    </td>
+
+                    <!-- TEAMS (SCROLL) -->
+                    <td>
+                        <div class="scroll-box">
+                            {% for team in request.teams.split(',') %}
+                            <span class="badge-custom team-badge">
+                                {{ team.strip() }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </td>
+
+                    <!-- TASKS (SCROLL) -->
+                    <td>
+                        <div class="scroll-box">
+                            {% for task in request.tasks.split(',') %}
+                            <span class="badge-custom task-badge">
+                                {{ task.strip() }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </td>
+
+                    <td>
+                        <a href="/delete/{{ request.id }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this request?')">
+                           Delete
+                        </a>
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
